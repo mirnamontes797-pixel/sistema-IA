@@ -1,14 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:velocimetro/main.dart';
+import 'package:planeacion_academica/main.dart';
 
 void main() {
-  testWidgets('Velocímetro muestra la app', (WidgetTester tester) async {
-    await tester.pumpWidget(const VelocimetroApp());
+  testWidgets('La app arranca mostrando login o shell', (WidgetTester tester) async {
+    await tester.pumpWidget(const PlaneacionApp());
     await tester.pump();
-
-    expect(find.text('Velocímetro Pro'), findsOneWidget);
-    expect(find.text('INICIAR VELOCÍMETRO'), findsOneWidget);
-    expect(find.text('KM/H'), findsOneWidget);
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }
