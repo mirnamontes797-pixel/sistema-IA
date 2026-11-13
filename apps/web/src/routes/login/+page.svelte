@@ -1,6 +1,7 @@
 <script>
   import { api, setSession } from '$lib/api.js';
   import { supabase } from '$lib/supabase.js';
+  import { env } from '$env/dynamic/public';
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
 
@@ -29,6 +30,10 @@
 
   async function loginWithGoogle() {
     error = '';
+    if (!env.PUBLIC_SUPABASE_URL || !env.PUBLIC_SUPABASE_ANON_KEY) {
+      error = 'Faltan PUBLIC_SUPABASE_URL / PUBLIC_SUPABASE_ANON_KEY en las variables de entorno.';
+      return;
+    }
     googleLoading = true;
     try {
       const { data, error: oauthError } = await supabase.auth.signInWithOAuth({

@@ -11,8 +11,15 @@ dotenv.config(); // también lee .env local del paquete
 
 const required = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'JWT_SECRET'];
 const missing = required.filter((k) => !process.env[k]);
-if (missing.length && process.env.NODE_ENV === 'production') {
-  throw new Error(`Faltan variables de entorno: ${missing.join(', ')}`);
+if (missing.length) {
+  const msg = `Faltan variables de entorno: ${missing.join(', ')}. ` +
+    'Configúralas en Vercel (Project → Settings → Environment Variables) o en el archivo .env.';
+  if (process.env.NODE_ENV === 'production') {
+    // En serverless el error se registra en los logs de Vercel (Functions).
+    console.error(`[env] ${msg}`);
+    throw new Error(msg);
+  }
+  console.warn(`[env] ${msg}`);
 }
 
 export const env = {
