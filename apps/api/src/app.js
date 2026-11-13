@@ -33,3 +33,6 @@ export function createApp() {
   });
   return app;
 }
+
+// Vercel exige un default export que sea función o servidor (app Express).
+export default createApp();

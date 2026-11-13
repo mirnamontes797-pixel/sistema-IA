@@ -1,4 +1,3 @@
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 import mammoth from 'mammoth';
 import * as XLSX from 'xlsx';
 
@@ -9,6 +8,9 @@ export async function extractText(buffer, extension, originalName = '') {
   const warnings = [];
 
   if (ext === 'pdf') {
+    // Import dinámico: pdfjs-dist es pesado y en Vercel intenta cargar
+    // @napi-rs/canvas (binario nativo). Solo se carga al analizar PDFs.
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
     const doc = await pdfjs.getDocument({
       data: new Uint8Array(buffer),
       useWorkerFetch: false,
