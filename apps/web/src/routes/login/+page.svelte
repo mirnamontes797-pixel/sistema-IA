@@ -11,6 +11,7 @@
   let error = $state('');
   let loading = $state(false);
   let googleLoading = $state(false);
+  const OAUTH_FLOW_KEY = 'supabase_oauth_flow_id';
 
   function saveGoogleSession(session) {
     const u = session.user;
@@ -30,15 +31,19 @@
     error = '';
     googleLoading = true;
     try {
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/login`,
-          queryParams: { access_type: 'offline', prompt: 'consent' }
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+          skipBrowserRedirect: true
         }
       });
       if (oauthError) throw oauthError;
-      // El navegador redirige a Google; no continúa aquí.
+      if (!data?.url) throw new Error('No se pudo obtener la URL de Google');
+      sessionStorage.removeItem(OAUTH_FLOW_KEY);
+      if (data.flowId) sessionStorage.setItem(OAUTH_FLOW_KEY, data.flowId);
+      window.location.assign(data.url);
     } catch (err) {
       error = err.message;
       googleLoading = false;
@@ -63,13 +68,29 @@
   }
 
   onMount(async () => {
-    // Al volver de Google, supabase-js canjea el ?code= y emite la sesión.
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      googleLoading = true;
+      const flowId = sessionStorage.getItem(OAUTH_FLOW_KEY);
+      sessionStorage.removeItem(OAUTH_FLOW_KEY);
+      const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(
+        code,
+        flowId ? { flowId } : undefined
+      );
+      googleLoading = false;
+      if (!exchangeError && data?.session) {
+        saveGoogleSession(data.session);
+        return;
+      }
+      error = exchangeError?.message || 'No se pudo completar el inicio con Google';
+      return;
+    }
+
     const { data } = await supabase.auth.getSession();
     if (data.session) {
       saveGoogleSession(data.session);
       return;
     }
-    // Si ya hay sesión de Supabase activa (p. ej. refresh), entrar directo.
     const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
       if (session) saveGoogleSession(session);
     });

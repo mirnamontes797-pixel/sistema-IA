@@ -1,5 +1,8 @@
+import { env } from '$env/dynamic/public';
+
 // Cliente API compartido. En producción usa PUBLIC_API_URL (Vercel).
-const BASE = import.meta.env.PUBLIC_API_URL || '/api';
+export const API_BASE = (env.PUBLIC_API_URL || '/api').replace(/\/$/, '');
+const BASE = API_BASE;
 
 export function getToken() {
   return typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;

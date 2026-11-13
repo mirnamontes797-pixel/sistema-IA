@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { api, getToken } from '$lib/api.js';
+  import { api, getToken, API_BASE } from '$lib/api.js';
 
   let courses = $state([]);
   let documents = $state({});
@@ -75,8 +75,7 @@
 
   async function openDocument(course, download) {
     try {
-      const base = (import.meta.env.PUBLIC_API_URL || '/api').replace(/\/$/, '');
-      const response = await fetch(`${base}/courses/${course.id}/documents/${documents[course.id].id}/file?download=${download}`, {
+      const response = await fetch(`${API_BASE}/courses/${course.id}/documents/${documents[course.id].id}/file?download=${download}`, {
         headers: { Authorization: `Bearer ${getToken()}` }
       });
       if (!response.ok) throw new Error('No se pudo abrir el documento');
