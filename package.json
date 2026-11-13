@@ -1,0 +1,18 @@
+{
+  "name": "plataforma-planeacion-academica",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Sistema de administración para planeación académica: unidades, resultados de aprendizaje, actividades, evaluaciones y cronogramas.",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/web",
+    "lint": "npm run lint --workspace=apps/web"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
